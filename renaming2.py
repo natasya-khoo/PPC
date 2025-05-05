@@ -6,12 +6,14 @@ from tkinter import Tk, Toplevel, Label, Entry, Button, StringVar, messagebox
 from tkinter import ttk
 import threading
 import tkinter
+from tkinter import messagebox
 
 # --- Network Drive Mapping & File Handling ---
 
 ori_dir = r"\\172.16.20.13\Share Folder\Level3"
 dst_dir = r"\\172.16.30.120\SVR-Drive\CANSG\DWG"
 merge_dir = r"\\192.168.4.163\SVR-Drive\CANSG\DWG"
+
 
 def map_network_drive_cmd(local_drive, remote_path, username, password):
     cmd = ["net", "use", local_drive, remote_path]
@@ -22,6 +24,7 @@ def map_network_drive_cmd(local_drive, remote_path, username, password):
         print(f"Drive {local_drive} successfully mapped to {remote_path}")
     except subprocess.CalledProcessError as e:
         print("Error mapping drive:", e)
+
 
 map_network_drive_cmd("A:", ori_dir, "cantal", "eYlvK72e")
 map_network_drive_cmd("B:", dst_dir, "cantal", "123456")
@@ -228,6 +231,7 @@ def main_flow():
     shutil.copy2(latest_file, destination_file_path)
     print(f"File copied and renamed to: {destination_file_path}")
     messagebox.showinfo("File Renamed", f"File copied and renamed to:\n{destination_file_path}")
+    root.destroy()
 
 root.after(0, main_flow)
 root.mainloop()
