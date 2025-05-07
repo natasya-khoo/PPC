@@ -7,17 +7,25 @@ from tkinter import ttk
 import threading
 import tkinter
 from tkinter import messagebox
+import configparser
 
-# --- Network Drive Mapping & File Handling ---
+# --- Load configuration ---
+config = configparser.ConfigParser()
+config.read('config.ini')
 
-ori_dir = r"\\172.16.20.13\Share Folder\Level3"
-dst_dir = r"\\172.16.30.120\SVR-Drive\CANSG\DWG"
-merge_dir = r"\\192.168.4.163\SVR-Drive\CANSG\DWG"
+# Read IP addresses from config
+ori_dir= config.get('network', 'ori_dir')
+dst_dir = config.get('network', 'dst_dir')
+merge_dir = config.get('network', 'merge_dir')
 
+# credentials
+username = config.get('credentials', 'username')
+pwd_a     = config.get('credentials', 'pwd_a')
+pwd_b     = config.get('credentials', 'pwd_b')
 
 def map_network_drive_cmd(local_drive, remote_path, username, password):
     cmd = ["net", "use", local_drive, remote_path]
-    if username and password:
+    if username and (pwd_a or pwd_b):
         cmd.extend([password, "/user:" + username])
     try:
         subprocess.run(cmd, check=True)
@@ -26,8 +34,8 @@ def map_network_drive_cmd(local_drive, remote_path, username, password):
         print("Error mapping drive:", e)
 
 
-map_network_drive_cmd("A:", ori_dir, "cantal", "eYlvK72e")
-map_network_drive_cmd("B:", dst_dir, "cantal", "123456")
+map_network_drive_cmd("A:", ori_dir, username, pwd_a)
+map_network_drive_cmd("B:", dst_dir, username, pwd_b)
 
 files = [os.path.join(ori_dir, f) for f in os.listdir(ori_dir)
          if os.path.isfile(os.path.join(ori_dir, f))]
@@ -86,14 +94,14 @@ def get_dwg_input():
 
     # ---------- Section 1: MO Number Input (Top Section) ----------
     input_frame = tkinter.Frame(main_frame)
-    input_frame.pack(fill="x", pady=(0, 10))
+    input_frame.pack(pady=(0, 10), anchor="center")
     
     # Configure grid columns so that the inputs are centered.
-    input_frame.grid_columnconfigure(0, weight=1)
-    input_frame.grid_columnconfigure(1, weight=0)
-    input_frame.grid_columnconfigure(2, weight=1)
-    input_frame.grid_columnconfigure(3, weight=0)
-    input_frame.grid_columnconfigure(4, weight=1)
+    input_frame.grid_columnconfigure(0, weight=0)
+    input_frame.grid_columnconfigure(1, weight=1)
+    input_frame.grid_columnconfigure(2, weight=0)
+    input_frame.grid_columnconfigure(3, weight=1)
+    input_frame.grid_columnconfigure(4, weight=0)
 
     # Header row: Labels above each input.
     Label(input_frame, text="Year", font=("TkDefaultFont", 10, "bold"), anchor="center") \
@@ -110,25 +118,28 @@ def get_dwg_input():
     end_year = current_year + 2
     year_options = [str(year)[0] + str(year)[2:] for year in range(start_year, end_year + 1)]
     combobox_year = ttk.Combobox(input_frame, textvariable=year_var, values=year_options,
-                                 state="readonly", width=20, justify="center")
+                                 state="readonly", width=8, justify="center")
     combobox_year.grid(row=1, column=0, padx=5, pady=5)
     current_modified = str(current_year)[0] + str(current_year)[2:]
     combobox_year.current(year_options.index(current_modified))
 
     dash_font = ("TkDefaultFont", 15, "bold")
-    Label(input_frame, text="-", font=dash_font).grid(row=1, column=1, padx=10, pady=5)
+    Label(input_frame, text="-", font=dash_font).grid(row=1, column=1, padx=5, pady=5)
 
     validate_cmd = (top.register(validate_4digits), '%P')
     project_var = StringVar(top)
     entry_project = Entry(input_frame, textvariable=project_var, validate="key",
-                          validatecommand=validate_cmd, width=20)
+                          validatecommand=validate_cmd)
+    entry_project.config(width=8)
     entry_project.grid(row=1, column=2, padx=5, pady=5)
+  
 
-    Label(input_frame, text="-", font=dash_font).grid(row=1, column=3, padx=10, pady=5)
+    Label(input_frame, text="-", font=dash_font).grid(row=1, column=3, padx=5, pady=5)
     seq_var = StringVar(top)
     entry_seq = Entry(input_frame, textvariable=seq_var, validate="key",
-                      validatecommand=validate_cmd, width=20)
+                      validatecommand=validate_cmd, width=8)
     entry_seq.grid(row=1, column=4, padx=5, pady=5)
+    entry_seq.config(width=8)
 
     # ---------- Section 2: Submit Button (to validate MO Number) ----------
     # Create the submit button with a widget reference.
@@ -182,14 +193,14 @@ def get_dwg_input():
         viewer = pdf.ShowPdf()
         pdf_display = viewer.pdf_view(pdf_frame, pdf_location=latest_file, width=120, height=40)
         pdf_display.pack(anchor="center", pady=5)
-        
-        # Confirmation Buttons.
-        button_frame = tkinter.Frame(preview_frame)
-        button_frame.pack(pady=10)
-        Button(button_frame, text="Confirm", command=on_confirm) \
-            .pack(side="left", padx=10)
-        Button(button_frame, text="Cancel", command=on_cancel) \
-            .pack(side="left", padx=10)
+
+        confirm_button = Button(input_frame, text="Confirm", command=on_confirm) 
+        confirm_button.grid(row=3, column=1, padx=10, pady=10 , sticky = "e")
+
+        cancel_button = Button(input_frame, text="Cancel", command=on_cancel)
+        cancel_button.grid(row=3, column=2, padx=10, pady=10 , sticky = "w")
+
+
 
     def on_confirm():
         top.confirmed = True
