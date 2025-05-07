@@ -34,8 +34,13 @@ def map_network_drive_cmd(local_drive, remote_path, username, password):
         print("Error mapping drive:", e)
 
 
+<<<<<<< HEAD
 map_network_drive_cmd("A:", ori_dir, username, pwd_a)
 map_network_drive_cmd("B:", dst_dir, username, pwd_b)
+=======
+map_network_drive_cmd("A:", ori_dir, "cantal", "eYlvK72e")
+map_network_drive_cmd("B:", dst_dir, "cantal", "654321")
+>>>>>>> c7fff6f345c68f06bd914e7f2d28e77729a00b2c
 
 files = [os.path.join(ori_dir, f) for f in os.listdir(ori_dir)
          if os.path.isfile(os.path.join(ori_dir, f))]
@@ -97,19 +102,27 @@ def get_dwg_input():
     input_frame.pack(pady=(0, 10), anchor="center")
     
     # Configure grid columns so that the inputs are centered.
+<<<<<<< HEAD
     input_frame.grid_columnconfigure(0, weight=0)
     input_frame.grid_columnconfigure(1, weight=1)
     input_frame.grid_columnconfigure(2, weight=0)
     input_frame.grid_columnconfigure(3, weight=1)
     input_frame.grid_columnconfigure(4, weight=0)
+=======
+    input_frame.grid_columnconfigure(0, weight=1)
+    input_frame.grid_columnconfigure(1, weight=1)
+    input_frame.grid_columnconfigure(2, weight=1)
+    input_frame.grid_columnconfigure(3, weight=0)
+    input_frame.grid_columnconfigure(4, weight=1)
+>>>>>>> c7fff6f345c68f06bd914e7f2d28e77729a00b2c
 
     # Header row: Labels above each input.
     Label(input_frame, text="Year", font=("TkDefaultFont", 10, "bold"), anchor="center") \
-        .grid(row=0, column=0, padx=5, pady=5)
+        .grid(row=0, column=1, padx=5, pady=5)
     Label(input_frame, text="Project", font=("TkDefaultFont", 10, "bold"), anchor="center") \
         .grid(row=0, column=2, padx=5, pady=5)
     Label(input_frame, text="Sequence", font=("TkDefaultFont", 10, "bold"), anchor="center") \
-        .grid(row=0, column=4, padx=5, pady=5)
+        .grid(row=0, column=3, padx=5, pady=5)
 
     # Input row: MO number entries with bold dash separators.
     year_var = StringVar(top)
